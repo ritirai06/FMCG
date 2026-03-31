@@ -1,0 +1,114 @@
+# -------------------------------------------------------
+# FMCG Sales System — .gitignore
+# -------------------------------------------------------
+
+# -------------------------------------------------------
+# Laravel
+# -------------------------------------------------------
+/vendor/
+/node_modules/
+/public/build/
+/public/hot/
+/public/storage/
+/storage/*.key
+/storage/pail/
+/storage/app/public/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/framework/views/
+/storage/logs/
+/bootstrap/cache/
+
+# -------------------------------------------------------
+# Environment & Secrets — NEVER commit these
+# -------------------------------------------------------
+.env
+.env.backup
+.env.production
+.env.staging
+.env.testing
+/auth.json
+
+# -------------------------------------------------------
+# Uploaded files (user content — not part of source code)
+# -------------------------------------------------------
+/public/uploads/
+/storage/avatars/
+/storage/brands/
+/storage/categories/
+/storage/delivery_persons/
+/storage/products/
+/storage/attendance_photos/
+/storage/delivery_proofs/
+
+# -------------------------------------------------------
+# Node / NPM
+# -------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# -------------------------------------------------------
+# IDE & Editor
+# -------------------------------------------------------
+/.idea/
+/.vscode/
+/.fleet/
+/.nova/
+/.zed/
+/.phpactor.json
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# -------------------------------------------------------
+# OS generated
+# -------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# -------------------------------------------------------
+# PHP / Laravel testing
+# -------------------------------------------------------
+.phpunit.result.cache
+/.phpunit.cache/
+/coverage/
+
+# -------------------------------------------------------
+# Logs
+# -------------------------------------------------------
+*.log
+*.log.*
+
+# -------------------------------------------------------
+# Homestead / Vagrant (legacy local dev)
+# -------------------------------------------------------
+Homestead.json
+Homestead.yaml
+.vagrant/
+
+# -------------------------------------------------------
+# Compiled / temp files
+# -------------------------------------------------------
+*.cache
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# -------------------------------------------------------
+# Composer lock (keep composer.lock in version control
+# for reproducible installs — only ignore if intentional)
+# -------------------------------------------------------
+# composer.lock
