@@ -27,16 +27,24 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'sku' => 'required|unique:products,sku',
-            'brand' => 'required',
-            'category' => 'required',
+            'name'           => 'required|string|max:255',
+            'sku'            => 'nullable|string',
+            'brand'          => 'required',
+            'category'       => 'required',
             'purchase_price' => 'required|numeric|min:0',
-            'sell_price' => 'required|numeric|min:0',
-            'mrp' => 'nullable|numeric|min:0',
-            'status' => 'required',
-            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'sell_price'     => 'required|numeric|min:0',
+            'mrp'            => 'nullable|numeric|min:0',
+            'status'         => 'required',
+            'images.*'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
         ]);
+
+        // Auto-generate SKU if blank or already taken
+        $sku = trim($request->sku ?? '');
+        if ($sku === '' || DB::table('products')->where('sku', $sku)->exists()) {
+            do {
+                $sku = 'SKU' . strtoupper(substr(md5(uniqid()), 0, 8));
+            } while (DB::table('products')->where('sku', $sku)->exists());
+        }
 
         $gstPercent      = floatval($request->gst_percent ?? 0);
         $cessPct         = floatval($request->cess_percent ?? 0);
@@ -64,10 +72,10 @@ class ProductController extends Controller
         }
 
         $productId = DB::table('products')->insertGetId([
-            'name' => $request->name,
-            'sku' => $request->sku,
-            'unit' => $request->unit,
-            'item_code' => $request->item_code ?? $request->sku,
+            'name'      => $request->name,
+            'sku'       => $sku,
+            'unit'      => $request->unit,
+            'item_code' => $request->item_code ?? $sku,
             'item_description' => $request->item_description,
             'brand' => $request->brand,
             'category' => $request->category,
@@ -136,11 +144,14 @@ class ProductController extends Controller
             // Log if initial stock is entered
             if ($units > 0) {
                 InventoryLog::create([
-                    'product_id'  => $productId,
+                    'inventory_id' => DB::table('inventories')->where('product_id', $productId)->where('warehouse_id', $request->warehouse_id)->value('id'),
+                    'product_id'   => $productId,
                     'warehouse_id' => $request->warehouse_id,
-                    'change_type' => 'add',
-                    'quantity'    => $units,
-                    'reason'      => 'Initial Stock Entry',
+                    'change_type'  => 'add',
+                    'type'         => 'in',
+                    'quantity'     => $units,
+                    'reason'       => 'Initial Stock Entry',
+                    'note'         => 'Initial Stock Entry',
                 ]);
             }
         }
@@ -282,13 +293,12 @@ class ProductController extends Controller
             }
         }
 
-        $col = fn(string $name) => isset($map[$name]) ? ($rows[$i][$map[$name]] ?? null) : null;
-
         $imported = $updated = $failed = 0;
         $errors   = [];
 
         for ($i = 1; $i < count($rows); $i++) {
             $row = $rows[$i];
+            $col = fn(string $name) => isset($map[$name]) ? ($row[$map[$name]] ?? null) : null;
 
             // Skip completely empty rows
             if (empty(array_filter($row, fn($v) => $v !== null && $v !== ''))) continue;
